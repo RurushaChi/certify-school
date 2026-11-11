@@ -1,0 +1,53 @@
+credentials/
+settings.py
+
+# --- Python & Django ---
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual Environments ---
+# (Common names like venv, .venv, env)
+venv/
+.venv/
+env/
+ENV/
+
+# --- Environment Variables & Secrets ---
+# Never commit your production or local secret keys/credentials
+.env
+*.env
+local_settings.py
+db.sqlite3
+
+# --- Logs & Temporary Files ---
+*.log
+local_db.sqlite3*
+media/
+staticfiles/
+
+# --- VS Code ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.history/
