@@ -6,7 +6,6 @@ let currentBoxDiv = null;
 const img = document.getElementById('template-img');
 const container = document.getElementById('canvas-container');
 
-// Prevent browser's native image dragging behavior
 img.addEventListener('dragstart', (e) => e.preventDefault());
 
 container.addEventListener('mousedown', (e) => {
@@ -18,7 +17,7 @@ container.addEventListener('mousedown', (e) => {
     currentBoxDiv = document.createElement('div');
     currentBoxDiv.style.position = 'absolute';
     currentBoxDiv.style.border = '2px dashed #0d6efd';
-    currentBoxDiv.style.backgroundColor = 'rgba(13, 110, 253, 0.2)';
+    currentBoxDiv.style.backgroundColor = 'rgba(13, 110, 253, 0.1)';
     currentBoxDiv.style.left = `${startX}px`;
     currentBoxDiv.style.top = `${startY}px`;
     container.appendChild(currentBoxDiv);
@@ -48,7 +47,7 @@ container.addEventListener('mouseup', (e) => {
 
     let labelName = document.getElementById('label-name-input').value.trim();
     if (!labelName) {
-        labelName = prompt('Enter the CSV column name for this box (e.g., first_name):');
+        labelName = prompt('Enter the CSV column name for this label (e.g., first_name):');
         if (!labelName) {
             if (currentBoxDiv) currentBoxDiv.remove();
             currentBoxDiv = null;
@@ -56,11 +55,15 @@ container.addEventListener('mouseup', (e) => {
         }
     }
 
+    const fontSize = document.getElementById('font-size-input').value;
+    const textColor = document.getElementById('text-color-input').value;
+    const fontFamily = document.getElementById('font-family-input').value;
+
     const rect = img.getBoundingClientRect();
     const endX = e.clientX - rect.left;
     const endY = e.clientY - rect.top;
 
-    // Scale factors to map display size to natural image size
+    // Scale mapping to natural image dimensions
     const scaleX = img.naturalWidth / img.width;
     const scaleY = img.naturalHeight / img.height;
 
@@ -70,22 +73,25 @@ container.addEventListener('mouseup', (e) => {
         y: Math.min(startY, endY) * scaleY,
         width: Math.abs(endX - startX) * scaleX,
         height: Math.abs(endY - startY) * scaleY,
-        font_size: 32
+        font_size: parseInt(fontSize),
+        text_color: textColor,
+        font_family: fontFamily
     };
 
     boxes.push(box);
 
     if (currentBoxDiv) {
         currentBoxDiv.style.border = '2px solid #198754';
-        currentBoxDiv.style.backgroundColor = 'rgba(25, 135, 84, 0.2)';
+        currentBoxDiv.style.backgroundColor = 'rgba(25, 135, 84, 0.1)';
         
-        const tag = document.createElement('span');
-        tag.innerText = labelName;
+        // Live Preview Badge showing field name & color preview
+        const tag = document.createElement('div');
+        tag.innerText = `[${labelName}]`;
         tag.style.position = 'absolute';
-        tag.style.background = '#198754';
-        tag.style.color = 'white';
-        tag.style.fontSize = '12px';
-        tag.style.padding = '2px 6px';
+        tag.style.background = textColor;
+        tag.style.color = getContrastColor(textColor);
+        tag.style.fontSize = '11px';
+        tag.style.padding = '2px 5px';
         tag.style.borderRadius = '3px';
         currentBoxDiv.appendChild(tag);
     }
@@ -96,13 +102,11 @@ container.addEventListener('mouseup', (e) => {
 
 document.getElementById('save-config').addEventListener('click', () => {
     if (boxes.length === 0) {
-        alert('Please draw at least one label box on the image before saving.');
+        alert('Please draw at least one label box on the template before saving.');
         return;
     }
 
-    // Grab CSRF token safely
-    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-    const csrfToken = csrfTokenElement ? csrfTokenElement.value : getCookie('csrftoken');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     fetch(window.location.href, {
         method: 'POST',
@@ -129,22 +133,16 @@ document.getElementById('save-config').addEventListener('click', () => {
     })
     .catch(error => {
         console.error('Save error:', error);
-        alert('Failed to save configuration. Check console for details.');
+        alert('Failed to save configuration.');
     });
 });
 
-// Helper to grab cookie CSRF token if input field is missing
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+// Helper to calculate high-contrast text color for badge readability
+function getContrastColor(hexcolor) {
+    hexcolor = hexcolor.replace('#', '');
+    const r = parseInt(hexcolor.substr(0,2),16);
+    const g = parseInt(hexcolor.substr(2,2),16);
+    const b = parseInt(hexcolor.substr(4,2),16);
+    const yiq = ((r*299)+(g*587)+(b*114))/1000;
+    return (yiq >= 128) ? '#000000' : '#ffffff';
 }

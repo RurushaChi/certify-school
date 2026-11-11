@@ -44,7 +44,8 @@ def generate_personalized_images(template_id, csv_file_path):
                 # Load font (falls back to default if TrueType font isn't found)
                 try:
                     font_size = int(label.font_size) if label.font_size else 24
-                    font = ImageFont.truetype("arial.ttf", font_size)
+                    font_name = getattr(label, 'font_family', 'arial.ttf') or 'arial.ttf'
+                    font = ImageFont.truetype(font_name, font_size)
                 except IOError:
                     font = ImageFont.load_default()
                 

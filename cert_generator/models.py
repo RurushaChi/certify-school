@@ -8,17 +8,12 @@ class ImageTemplate(models.Model):
 
 
 class ImageLabel(models.Model):
-  template = models.ForeignKey(
-      ImageTemplate, related_name='labels', on_delete=models.CASCADE
-  )
-  name = models.CharField(
-      max_length=100
-  )  # e.g., "first_name", matches CSV column
-  x = models.FloatField()  # Percentage or pixel coordinates
-  y = models.FloatField()
-  width = models.FloatField()
-  height = models.FloatField()
-  font_size = models.IntegerField(default=24)
-  text_color = models.CharField(
-      max_length=7, default='#000000'
-  )  # Hex color
+    template = models.ForeignKey(ImageTemplate, related_name='labels', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    x = models.FloatField()
+    y = models.FloatField()
+    width = models.FloatField()
+    height = models.FloatField()
+    font_size = models.IntegerField(default=32)
+    text_color = models.CharField(max_length=20, default='#000000')
+    font_family = models.CharField(max_length=100, default='arial.ttf')
