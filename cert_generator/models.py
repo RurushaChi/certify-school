@@ -17,3 +17,4 @@ class ImageLabel(models.Model):
     font_size = models.IntegerField(default=32)
     text_color = models.CharField(max_length=20, default='#000000')
     font_family = models.CharField(max_length=100, default='arial.ttf')
+    alignment = models.CharField(max_length=10, default='left') # <-- Add this line

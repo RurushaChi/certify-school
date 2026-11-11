@@ -22,31 +22,34 @@ def upload_template_view(request):
 
 
 def label_editor_view(request, pk):
-  template = get_object_or_404(ImageTemplate, pk=pk)
+    template = get_object_or_404(ImageTemplate, pk=pk)
 
-  if request.method == 'POST':
-    # Expecting JSON data from frontend JavaScript containing box definitions
-    try:
-      data = json.loads(request.body)
-      # Clear existing labels if re-editing
-      template.labels.all().delete()
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            template.labels.all().delete()
 
-      for box in data.get('labels', []):
-        ImageLabel.objects.create(
-            template=template,
-            name=box['name'],
-            x=box['x'],
-            y=box['y'],
-            width=box['width'],
-            height=box['height'],
-            font_size=box.get('font_size', 24),
-            text_color=box.get('text_color', '#000000'),
-        )
-      return JsonResponse({'status': 'success', 'redirect_url': f'/cert_generator/template/{template.pk}/generate/'})
-    except Exception as e:
-      return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+            for box in data.get('labels', []):
+                ImageLabel.objects.create(
+                    template=template,
+                    name=box['name'],
+                    x=box['x'],
+                    y=box['y'],
+                    width=box['width'],
+                    height=box['height'],
+                    font_size=box.get('font_size', 24),
+                    text_color=box.get('text_color', '#000000'),
+                    font_family=box.get('font_family', 'arial.ttf'),
+                    alignment=box.get('alignment', 'left'), # <-- This was missing!
+                )
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': f'/cert_generator/template/{template.pk}/generate/'
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
-  return render(request, 'cert_generator/label_editor.html', {'template': template})
+    return render(request, 'cert_generator/label_editor.html', {'template': template})
 
 
 def generate_images_view(request, pk):

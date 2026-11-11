@@ -2,43 +2,71 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Define Label Areas & Preview</h2>
-    <p>Select your font options, enter the CSV column name, then click and drag on the image to draw your label box.</p>
+<div class="container mt-4">
+    <h2>Define & Style Label Areas</h2>
+    <p>Configure styling, draw boxes on the template, and manage existing regions below.</p>
     
     {% csrf_token %}
 
-    <div class="card p-3 mb-3 bg-light" style="max-width: 600px;">
-        <div class="row g-2">
-            <div class="col-md-6">
-                <label class="form-label font-weight-bold">CSV Column Name</label>
-                <input type="text" id="label-name-input" placeholder="e.g. first_name" class="form-control">
+    <div class="row">
+        <!-- Left Column: Controls & Canvas -->
+        <div class="col-md-8">
+            <div class="card p-3 mb-3 bg-light">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <label class="form-label font-weight-bold">CSV Column Name</label>
+                        <input type="text" id="label-name-input" placeholder="e.g. full_name" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Font Size</label>
+                        <input type="number" id="font-size-input" value="32" class="form-control" min="8" max="200">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Color</label>
+                        <input type="color" id="text-color-input" value="#000000" class="form-control form-control-color w-100">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Align</label>
+                        <select id="alignment-input" class="form-select">
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 mt-2">
+                        <label class="form-label">Font Family</label>
+                        <select id="font-family-input" class="form-select">
+                            <option value="arial.ttf">Arial</option>
+                            <option value="times.ttf">Times New Roman</option>
+                            <option value="cour.ttf">Courier New</option>
+                            <option value="georgia.ttf">Georgia</option>
+                            <option value="verdana.ttf">Verdana</option>
+                            <option value="tahoma.ttf">Tahoma</option>
+                            <option value="trebuchet.ttf">Trebuchet MS</option>
+                            <option value="impact.ttf">Impact</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Font Size</label>
-                <input type="number" id="font-size-input" value="32" class="form-control" min="8" max="200">
+
+            <div id="canvas-container" style="position: relative; display: inline-block; cursor: crosshair; user-select: none; max-width: 100%;">
+                <img id="template-img" src="{{ template.image.url }}" style="max-width: 100%; display: block;">
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Text Color</label>
-                <input type="color" id="text-color-input" value="#000000" class="form-control form-control-color w-100">
-            </div>
-            <div class="col-md-12 mt-2">
-                <label class="form-label">Font Family</label>
-                <select id="font-family-input" class="form-select">
-                    <option value="arial.ttf">Arial</option>
-                    <option value="times.ttf">Times New Roman</option>
-                    <option value="cour.ttf">Courier New</option>
-                </select>
+
+            <div class="mt-4">
+                <button id="save-config" class="btn btn-success btn-lg">Save Configuration & Continue</button>
             </div>
         </div>
-    </div>
 
-    <div id="canvas-container" style="position: relative; display: inline-block; cursor: crosshair; user-select: none;">
-        <img id="template-img" src="{{ template.image.url }}" style="max-width: 100%; display: block;">
-    </div>
-
-    <div class="mt-4">
-        <button id="save-config" class="btn btn-success btn-lg">Save Configuration & Continue</button>
+        <!-- Right Column: Box Manager List -->
+        <div class="col-md-4">
+            <div class="card p-3 bg-light">
+                <h4>Created Labels</h4>
+                <ul id="box-list" class="list-group mt-2" style="max-height: 500px; overflow-y: auto;">
+                    <li class="list-group-item text-muted">No labels created yet. Draw on the image to add one.</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 
